@@ -26,6 +26,17 @@
 
   <!-- SELVE APPEN (skjult til passord er riktig) -->
   <div id="app" class="hide">
+    
+  <!-- DAG-TELLER -->
+<h2 id="dayCounter" style="margin:0 0 1rem;color:#d63384">Dager sammen: 0</h2>
+
+<!-- SETT DATO (vises bare første gang) -->
+<div id="dateSetter" class="hide" style="margin-bottom:1.2rem">
+  <label>Når møttes vi første gang?
+    <input id="firstDate" type="date">
+  </label>
+  <button onclick="setFirstDay()">Lagre dato</button>
+</div>
     <h1>Skriv en liten love-note</h1>
     <textarea id="noteBox" placeholder="Noe kjærlig…"></textarea>
     <button onclick="saveNote()">Lagre</button>
@@ -35,36 +46,59 @@
     <button onclick="showRandom()">Gi meg en ny</button>
   </div>
 
-  <script>
-    const PASS = 'kaffe123';          // <— ENDRE TIL DERES HEMMELIGE ORD
+<script>
+  const PASS = 'kaffe123';                     // deres hemmelige ord
 
-    function unlock(){
-      if(document.getElementById('pwd').value === PASS){
-        document.getElementById('lock').classList.add('hide');
-        document.getElementById('app').classList.remove('hide');
-        showRandom();               // vis en lapp med én gang
-      } else {
-        alert('Feil passord, prøv igjen ❤️');
-      }
+  /* ----------  DAG-TELLER  ---------- */
+  function setFirstDay(){
+    const raw = document.getElementById('firstDate').value; // åååå-mm-dd
+    if(!raw) return alert('Velg en dato først');
+    localStorage.setItem('firstDay', raw);
+    renderDays();
+  }
+  function renderDays(){
+    const first = localStorage.getItem('firstDay');
+    if(!first) return;                         // ikke satt enda
+    const diff = Math.floor((Date.now() - new Date(first)) / 86400000); // ms → dager
+    document.getElementById('dayCounter').textContent = `Dager sammen: ${diff}`;
+  }
+  function askFirstDayOnce(){
+    if(!localStorage.getItem('firstDay')){
+      document.getElementById('dateSetter').classList.remove('hide');
+    } else {
+      renderDays();
     }
+  }
 
-    function saveNote(){
-      const text = document.getElementById('noteBox').value.trim();
-      if(!text) return alert('Tom lapp, skriv noe søtt!');
-      const notes = JSON.parse(localStorage.getItem('ln') || '[]');
-      notes.push({txt:text, date:Date.now()});
-      localStorage.setItem('ln', JSON.stringify(notes));
-      document.getElementById('noteBox').value = '';
-      alert('Lagret! ❤️');
+  /* ----------  LÅS & APP  ---------- */
+  function unlock(){
+    if(document.getElementById('pwd').value === PASS){
+      document.getElementById('lock').classList.add('hide');
+      document.getElementById('app').classList.remove('hide');
+      askFirstDayOnce();   // vis dato-spørsmål hvis første gang
+      showRandom();        // vis en lapp
+    } else {
+      alert('Feil passord, prøv igjen ❤️');
     }
+  }
 
-    function showRandom(){
-      const notes = JSON.parse(localStorage.getItem('ln') || '[]');
-      if(!notes.length) return document.getElementById('card').innerHTML = 'Ingen lapper enda – skriv den første!';
-      const pick = notes[Math.floor(Math.random()*notes.length)];
-      const date = new Date(pick.date).toLocaleString('no-NO');
-      document.getElementById('card').innerHTML = `<p>${pick.txt}</p><small>${date}</small>`;
-    }
-  </script>
+  /* ----------  NOTES  ---------- */
+  function saveNote(){
+    const text = document.getElementById('noteBox').value.trim();
+    if(!text) return alert('Tom lapp, skriv noe søtt!');
+    const notes = JSON.parse(localStorage.getItem('ln') || '[]');
+    notes.push({txt:text, date:Date.now()});
+    localStorage.setItem('ln', JSON.stringify(notes));
+    document.getElementById('noteBox').value = '';
+    alert('Lagret! ❤️');
+  }
+  function showRandom(){
+    const notes = JSON.parse(localStorage.getItem('ln') || '[]');
+    if(!notes.length) return document.getElementById('card').innerHTML = 'Ingen lapper enda – skriv den første!';
+    const pick = notes[Math.floor(Math.random()*notes.length)];
+    const date = new Date(pick.date).toLocaleString('no-NO');
+    document.getElementById('card').innerHTML = `<p>${pick.txt}</p><small>${date}</small>`;
+  }
+</script>
 </body>
 </html>
