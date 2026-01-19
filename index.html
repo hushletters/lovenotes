@@ -1,30 +1,69 @@
 <!doctype html>
-<html lang="en">
+<html lang="no">
 <head>
   <meta charset="utf-8"/>
-  <title>Love Notes – write</title>
+  <title>Våre hemmelige love-notes</title>
   <style>
     body{font-family:system-ui;background:#fff0f5;margin:0;padding:2rem;display:flex;flex-direction:column;align-items:center}
-    textarea{width:100%;max-width:420px;height:120px;font-size:1.1rem;padding:.6rem;border:1px solid #ffb6c1;border-radius:8px;resize:vertical}
-    button{margin-top:1rem;padding:.6rem 1.4rem;font-size:1rem;background:#ff69b4;color:#fff;border:none;border-radius:8px;cursor:pointer}
-    a{margin-top:1.2rem;color:#d63384}
+    #lock, #app{width:100%;max-width:420px}
+    input[type=password]{width:100%;padding:.6rem;font-size:1rem;border:1px solid #ffb6c1;border-radius:8px}
+    button{padding:.6rem 1.4rem;margin-top:1rem;font-size:1rem;background:#ff69b4;color:#fff;border:none;border-radius:8px;cursor:pointer}
+    textarea{width:100%;height:120px;font-size:1.1rem;padding:.6rem;border:1px solid #ffb6c1;border-radius:8px;resize:vertical}
+    #card{background:#fff;border:1px solid #ffb6c1;border-radius:12px;padding:1.4rem 1.8rem;margin:1rem 0;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+    #card p{margin:0;font-size:1.2rem;line-height:1.4}
+    #card small{display:block;margin-top:.6rem;color:#888}
+    .hide{display:none}
   </style>
 </head>
 <body>
-  <h1>Write a little love note</h1>
-  <textarea id="noteBox" placeholder="Type something sweet…"></textarea>
-  <button onclick="saveNote()">Save</button>
-  <a href="random.html">Go read a random note ❤️</a>
+
+  <!-- PASSORD-SKJERM -->
+  <div id="lock">
+    <h1>Hei, elskling ❤️</h1>
+    <input id="pwd" type="password" placeholder="Skriv passordet vårt"/>
+    <button onclick="unlock()">Kom inn</button>
+  </div>
+
+  <!-- SELVE APPEN (skjult til passord er riktig) -->
+  <div id="app" class="hide">
+    <h1>Skriv en liten love-note</h1>
+    <textarea id="noteBox" placeholder="Noe kjærlig…"></textarea>
+    <button onclick="saveNote()">Lagre</button>
+
+    <h2 style="margin-top:2rem">Eller få en tilfeldig note</h2>
+    <div id="card">Trykk knappen under for å få en lapp!</div>
+    <button onclick="showRandom()">Gi meg en ny</button>
+  </div>
 
   <script>
+    const PASS = 'kaffe123';          // <— ENDRE TIL DERES HEMMELIGE ORD
+
+    function unlock(){
+      if(document.getElementById('pwd').value === PASS){
+        document.getElementById('lock').classList.add('hide');
+        document.getElementById('app').classList.remove('hide');
+        showRandom();               // vis en lapp med én gang
+      } else {
+        alert('Feil passord, prøv igjen ❤️');
+      }
+    }
+
     function saveNote(){
       const text = document.getElementById('noteBox').value.trim();
-      if(!text) return alert("Can't save an empty heart!");
-      const notes = JSON.parse(localStorage.getItem('loveNotes') || '[]');
+      if(!text) return alert('Tom lapp, skriv noe søtt!');
+      const notes = JSON.parse(localStorage.getItem('ln') || '[]');
       notes.push({txt:text, date:Date.now()});
-      localStorage.setItem('loveNotes', JSON.stringify(notes));
+      localStorage.setItem('ln', JSON.stringify(notes));
       document.getElementById('noteBox').value = '';
-      alert('Saved! ❤️');
+      alert('Lagret! ❤️');
+    }
+
+    function showRandom(){
+      const notes = JSON.parse(localStorage.getItem('ln') || '[]');
+      if(!notes.length) return document.getElementById('card').innerHTML = 'Ingen lapper enda – skriv den første!';
+      const pick = notes[Math.floor(Math.random()*notes.length)];
+      const date = new Date(pick.date).toLocaleString('no-NO');
+      document.getElementById('card').innerHTML = `<p>${pick.txt}</p><small>${date}</small>`;
     }
   </script>
 </body>
