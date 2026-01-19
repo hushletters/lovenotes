@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Love Notes – random</title>
+  <style>
+    body{font-family:system-ui;background:#fff0f5;margin:0;padding:2rem;display:flex;flex-direction:column;align-items:center}
+    #card{max-width:420px;background:#fff;border:1px solid #ffb6c1;border-radius:12px;padding:1.4rem 1.8rem;box-shadow:0 4px 12px rgba(0,0,0,.08);margin-bottom:1.2rem}
+    #card p{margin:0;font-size:1.2rem;line-height:1.4}
+    #card small{display:block;margin-top:.6rem;color:#888}
+    button{padding:.6rem 1.4rem;font-size:1rem;background:#ff69b4;color:#fff;border:none;border-radius:8px;cursor:pointer}
+    a{margin-top:1.2rem;color:#d63384}
+  </style>
+</head>
+<body>
+  <h1>A random note for you</h1>
+  <div id="card">Press the button to receive love!</div>
+  <button onclick="showRandom()">Another one</button>
+  <a href="index.html">Write a new note</a>
+
+  <script>
+    function showRandom(){
+      const notes = JSON.parse(localStorage.getItem('loveNotes') || '[]');
+      if(!notes.length) return document.getElementById('card').innerHTML = 'No notes yet—go write the first one!';
+      const pick = notes[Math.floor(Math.random()*notes.length)];
+      const date = new Date(pick.date).toLocaleString();
+      document.getElementById('card').innerHTML =
+        `<p>${pick.txt}</p><small>${date}</small>`;
+    }
+    showRandom(); // auto-load one on open
+  </script>
+</body>
+</html>
